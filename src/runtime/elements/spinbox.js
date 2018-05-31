@@ -2,7 +2,7 @@ import libui from 'libui-node'
 
 import {Widget} from './widget'
 
-export class Slider extends Widget {
+export class Spinbox extends Widget {
   getDefaultAttributes() {
     return {
       ...super._getDefaultAttributes(),
@@ -14,9 +14,9 @@ export class Slider extends Widget {
 
   _createWidget() {
     if ( this.attributes.min >= this.attributes.max )
-      throw new Error( 'Slider min value must be less than max value' );
+      throw new Error( 'Spinbox min value must be less than max value' );
 
-    this.widget = new libui.UiSlider( this.attributes.min, this.attributes.max );
+    this.widget = new libui.UiSpinbox( this.attributes.min, this.attributes.max );
   }
 
   _initializeWidgetAttributes() {

@@ -2,7 +2,7 @@ import libui from 'libui-node'
 
 import { Widget } from './widget'
 
-export class RadioButtons extends Widget {
+export class DropdownList extends Widget {
   _getDefaultAttributes() {
     return {
       ...super._getDefaultAttributes(),
@@ -12,17 +12,14 @@ export class RadioButtons extends Widget {
   }
 
   _createWidget() {
-    this.widget = new libui.UiRadioButtons();
+    this.widget = new libui.UiCombobox();
   }
 
   _initializeWidgetAttributes() {
     super._initializeWidgetAttributes();
 
     if ( !Array.isArray( this.attributes.items ) )
-      throw new Error( 'RadioButtons items must be an array' );
-
-    if ( this.attributes.items.length == 0 )
-      throw new Error( 'RadioButtons items cannot be empty' );
+      throw new Error( 'DropdownList items must be an array' );
 
     this.attributes.items.forEach( item => {
       this.widget.append( item );
@@ -37,12 +34,12 @@ export class RadioButtons extends Widget {
     if ( key == 'items' ) {
       // this attribute must be set dynamically using v-bind, so make sure it's not modified
       if ( !Array.isArray( value ) )
-        throw new Error( 'RadioButtons items must be an array' );
+        throw new Error( 'DropdownList items must be an array' );
       if ( value.length != this.items.length )
-        throw new Error( 'RadioButtons items cannot be changed dynamically' );
+        throw new Error( 'DropdownList items cannot be changed dynamically' );
       value.forEach( ( item, index ) => {
         if ( item != this.items[ index ] )
-          throw new Error( 'RadioButtons items cannot be changed dynamically' );
+          throw new Error( 'DropdownList items cannot be changed dynamically' );
       } );
     } else if ( key == 'selected' ) {
       if ( this.widget.selected != value )

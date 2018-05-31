@@ -1,82 +1,87 @@
 <template>
-  <Window title="Vuido Control Gallery" width="640" height="480" margined v-on:close="exit">
+  <Window title="Vuido Demo" width="1000" height="400" margined v-on:show="show" v-on:close="exit">
     <Box horizontal padded>
-      <Group title="Vuido Demo" margined>
+      <Group stretchy title="Input Widgets" margined>
         <Box padded>
           <Box horizontal padded>
-            <Button stretchy @click="switchMode">Switch mode</Button>
-            <Button stretchy @click="toggleEnabled">Toggle enabled</Button>
+            <TextInput stretchy v-model="text"/>
+            <TextInput stretchy v-model="text" readonly/>
           </Box>
-          <Box v-if="counterMode" horizontal padded>
-            <Text stretchy>Counter: {{ counter }}</Text>
-            <Button :enabled="enabled" @click="decrement">Decrement</Button>
-            <Button :enabled="enabled" @click="increment">Increment</Button>
-          </Box>
-          <Box v-else horizontal padded>
-            <Text stretchy>Value: {{ random }}</Text>
-            <Button :enabled="enabled" @click="randomize">Randomize</Button>
+          <Box stretchy horizontal padded>
+            <TextArea stretchy v-model="multilineText"/>
+            <TextArea stretchy v-model="multilineText" readonly/>
           </Box>
           <Box horizontal padded>
-            <TextInput stretchy v-model="text"/>
-            <Text stretchy>{{ text }}</Text>
+            <DropdownList stretchy v-bind:items="items" v-model="dropdown"/>
+            <TextInput stretchy v-bind:value="items[ dropdown ]" readonly/>
           </Box>
-          <TextArea stretchy v-model="multilineText"/>
-          <Text>Number of lines: {{ numberOfLines }}</Text>
+          <Box horizontal padded>
+            <Combobox stretchy v-bind:items="items" v-model="combobox"/>
+            <TextInput stretchy v-bind:value="combobox" readonly/>
+          </Box>
+          <Box horizontal padded>
+            <Spinbox stretchy min="0" max="100" v-model="spinbox"/>
+            <TextInput stretchy v-bind:value="spinbox" readonly/>
+          </Box>
+          <Box horizontal padded>
+            <Slider stretchy min="0" max="100" v-model="slider"/>
+            <Slider stretchy min="0" max="100" v-model="slider" v-bind:enabled="false"/>
+          </Box>
+          <Box horizontal padded>
+            <ColorButton stretchy v-model="color"/>
+            <TextInput stretchy v-bind:value="colorString" readonly/>
+          </Box>
+          <Box horizontal padded>
+            <FontButton ref="fontButton" stretchy v-on:change="font = $event"/>
+            <TextInput stretchy v-bind:value="fontString" readonly/>
+          </Box>
         </Box>
       </Group>
-
-      <Group title="Basic Controls" margined>
+      <Group title="Miscellaneous" margined>
         <Box padded>
           <Box horizontal padded>
-            <Button stretchy>Button enabled</Button>
-            <Button stretchy :enabled="false">Button disabled</Button>
+            <Box stretchy horizontal padded>
+              <Checkbox v-model="enabled">Enabled</Checkbox>
+              <Checkbox v-model="visible">Visible</Checkbox>
+            </Box>
+            <Button stretchy v-bind:enabled="enabled" v-bind:visible="visible">Button</Button>
           </Box>
+          <Separator horizontal/>
           <Box horizontal padded>
-            <TextInput stretchy v-model="text"/>
-            <TextInput stretchy v-model="text" :enabled="false"/>
+            <RadioButtons stretchy v-bind:items="[ 'Button', 'Text input', 'Text' ]" v-model="radio"/>
+            <Box stretchy>
+              <Button v-if="radio == 0">Button</Button>
+              <TextInput v-else-if="radio == 1" v-model="text"/>
+              <Text v-else>Text</Text>
+            </Box>
           </Box>
+          <Separator horizontal/>
           <Box horizontal padded>
-            <Checkbox text="Checkbox 1" @toggled="onToggled" checked/>
-            <Checkbox text="Checkbox 2" :enabled="!isChecked"/>
+            <Button v-on:click="changeProgress( -10 )">Decrease</Button>
+            <Button v-on:click="changeProgress( 10 )">Increase</Button>
+            <Button v-on:click="progress = -1">Infinity</Button>
           </Box>
-          <Box horizontal padded>
-            <Text stretchy>Color picker</Text>
-            <ColorButton @changed="onColorChanged" :color="color" stretchy/>
-          </Box>
+          <ProgressBar v-bind:value="progress"/>
+          <Separator horizontal/>
           <Box horizontal padded>
             <DatePicker/>
-            <Separator vertical/>
+            <Separator/>
             <TimePicker/>
-            <Separator vertical/>
-            <DateTimePicker stretchy/>
+            <Separator/>
+            <DateTimePicker/>
           </Box>
-          <Box padded>
-            <FontButton :font="font" @changed="onFontChanged"/>
-            <Text stretchy>{{fontString}}</Text>
-            <Separator />
-          </Box>
-          <Box horizontal padded>
-            <ProgressBar :value="progress" stretchy/>
-            <Separator vertical/>
-            <Button @click="changeProgress(-10)">-10</Button>
-            <Button @click="changeProgress(10)">+10</Button>
-            <Button @click="changeProgress(1, true)">Infinity</Button>
-          </Box>
-          <Box horizontal padded>
-            <Slider stretchy min="0" max="100" :value="slider" @changed="onSliderChange"/>
-            <Slider stretchy min="0" max="100" :value="slider" :enabled="false"/>
-          </Box>
-          <Box horizontal padded>
-            <RadioButtons :items="radio.items" :selected="radio.selected"  @on-selected="onRadioSelected"/>
-            <Text>Selected index: {{radio.selected}}</Text>
-          </Box>
-          <Box>
-            <Tab>
-              <TextInput label="Tab 1" value="Lorem ipsum dolor sit amet, consectetur adipiscing elit"/>
-              <TextInput label="Tab 2" value="Sed ut perspiciatis unde omnis iste natus error sit voluptatem"/>
-              <TextInput label="Tab 3" value="Ut enim ad minima veniam"/>
-            </Tab>
-          </Box>
+          <Separator horizontal/>
+          <Tab stretchy margined>
+            <Box label="Tab 1">
+              <Text>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</Text>
+            </Box>
+            <Box label="Tab 2">
+              <Text>Sed ut perspiciatis unde omnis iste natus error sit voluptatem.</Text>
+            </Box>
+            <Box label="Tab 3">
+              <Text>Ut enim ad minima veniam.</Text>
+            </Box>
+          </Tab>
         </Box>
       </Group>
     </Box>
@@ -89,70 +94,36 @@
   export default {
     data() {
       return {
-        counterMode: true,
-        enabled: true,
-        counter: 0,
-        random: 0,
-        progress: 10,
+        text: 'Text input',
+        multilineText: 'Text area',
+        items: [ 'Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5' ],
+        dropdown: 0,
+        combobox: 'Combobox',
+        spinbox: 30,
         slider: 40,
-        text: 'Edit me',
-        multilineText: 'Edit me too',
-        isChecked: true,
-        color: '#ffeeff',
+        color: new libui.Color( 0, 175 / 255, 130 / 255, 1 ),
         font: null,
-        radio: {
-          items: ['Option 1', 'Option 2', 'Option 3'],
-          selected: 1
-        }
+        enabled: true,
+        visible: true,
+        radio: 0,
+        progress: 10
       };
     },
-    created() {
-      this.font = new libui.FontDescriptor('Arial', 10, libui.textWeight.normal, libui.textItalic.normal, libui.textStretch.normal);
-    },
     computed: {
-      numberOfLines() {
-        return this.multilineText.split( '\n' ).length;
+      colorString() {
+        return 'R: ' + Math.floor( this.color.r * 255 ) + ', G: ' + Math.floor( this.color.g * 255 ) + ', B: ' + Math.floor( this.color.b * 255 ) + ', A: ' + Math.floor( this.color.a * 255 );
       },
       fontString() {
-        return `Font: ${this.font.getFamily()}, Size: ${this.font.getSize()}, Weight: ${this.font.getWeight()} `;
+        if ( this.font != null )
+          return this.font.getFamily() + ' ' + this.font.getSize() + ', weight=' + this.font.getWeight() + ', italic=' + this.font.getItalic() + ', stretch=' + this.font.getStretch();
       }
     },
     methods: {
-      switchMode() {
-        this.counterMode = !this.counterMode;
+      show() {
+        this.font = this.$refs.fontButton.font;
       },
-      toggleEnabled() {
-        this.enabled = !this.enabled;
-      },
-      increment() {
-        this.counter++;
-      },
-      decrement() {
-        this.counter--;
-      },
-      randomize() {
-        this.random = Math.floor(Math.random() * 1000);
-      },
-      onToggled(val) {
-        this.isChecked = val;
-      },
-      onColorChanged(val) {
-        this.color = val;
-      },
-      onFontChanged(val) {
-        this.font = val;
-      },
-      changeProgress(val, inf = false){
-        if(inf)
-          this.progress = -1;
-        else
-          this.progress = Math.min(Math.max(0, this.progress + val), 100);
-      },
-      onRadioSelected(val){
-        this.radio.selected = val;
-      },
-      onSliderChange(val){
-        this.slider = val;
+      changeProgress( step ){
+        this.progress = Math.min( Math.max( 0, this.progress + step ), 100 );
       },
       exit() {
         libui.stopLoop();

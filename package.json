@@ -1,6 +1,6 @@
 {
   "name": "vuido",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Native desktop applications using Vue.js",
   "main": "dist/vuido.js",
   "files": [
@@ -31,7 +31,6 @@
   },
   "homepage": "https://github.com/mimecorg/vuido",
   "dependencies": {
-    "color": "^3.0.0",
     "libui-node": "^0.2.0"
   },
   "devDependencies": {
